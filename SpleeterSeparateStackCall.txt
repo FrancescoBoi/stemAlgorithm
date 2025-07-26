@@ -1,0 +1,26 @@
+Here how the Spleeer "separate" method works step by step:
+separate:
+  - create fffmpeg audio adapter
+  - instantiate the Separator with the chosen algorithm i.e., Spleeter("spleeter:2stems")
+    - load_configuration(params_filename) load the file "2stems.json"
+  - separator.separate_to_file()
+    - waveform.load(): load the audio file
+    - sources = self.separate(waveform, separate)
+      - _get_prediction_generator
+        - create_estimator
+          - ModelProvider(): load some git variables for the models and update the model dir in params
+          - estimator = tf.Estimator.Estimator(model_fn, model_dir, params, config)
+          
+model_fn is the core function: it has a case for PREDICT, TRAIN, and EVALUATE.
+The stack for PREDICT is:
+model_fn(features, labels, mode, params):
+  - builder = EstimatorSpecBuilder(features, params)
+  - builder.build_predict_model
+    - tf.estimate.EstimateSpec(tf.estimator.ModeKeys.Predict, self.outputs)
+      - self.outputs -> build_outputs()
+        - build_output_waveform(self.masked_stft)
+          - build masked_stft()
+            - build_stft_feature()
+              - build_stft_name (e.g., "mix_stft")
+              - build_spectrogram_name
+ 
